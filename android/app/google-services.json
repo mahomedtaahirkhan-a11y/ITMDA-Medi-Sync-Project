@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "588871201179",
+    "project_id": "medi-sync-app-b73ff",
+    "storage_bucket": "medi-sync-app-b73ff.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:588871201179:android:4fd06108ec239530d6713e",
+        "android_client_info": {
+          "package_name": "com.example.medi_sync_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "588871201179-2t66el6a1r93jcvv7gesc74nfucr1lik.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAP28mTSGTadWuINrlMuCbmZt_f8gqirhk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "588871201179-2t66el6a1r93jcvv7gesc74nfucr1lik.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

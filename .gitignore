@@ -1,0 +1,50 @@
+# Miscellaneous
+*.class
+*.as
+*.jar
+*.lock
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+
+# IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+gen/
+
+# Xcode
+.xcworkspace/
+build/
+*.hmap
+*.xccheckout
+*.xcscmblueprint
+*.xcscheme
+*.xctestplan
+*.xctoolchain
+xcuserdata/
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
+# Symbolication related
+app.*.symbols
+# Obfuscation related
+app.*.map.json
+# Exceptions to above rules.
+!/ios/Flutter/Generated.xcconfig
+!/android/app/src/main/kotlin/**
+!/android/app/src/main/java/**
+!/android/app/src/main/res/**
