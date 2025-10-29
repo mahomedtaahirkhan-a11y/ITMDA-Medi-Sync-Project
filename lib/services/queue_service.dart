@@ -6,6 +6,7 @@ import 'package:medisync/models/user_model.dart';
 class QueueService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final CollectionReference _queuesCollection = FirebaseFirestore.instance.collection('queues');
+  final CollectionReference _appointmentsCollection = FirebaseFirestore.instance.collection('appointments');
 
   /// Checks a patient into a doctor's queue.
   Future<void> checkIn(String patientId, String doctorId) async {
@@ -42,11 +43,35 @@ class QueueService {
         .get();
 
     if (querySnapshot.docs.isNotEmpty) {
-      final patientDocId = querySnapshot.docs.first.id;
-      await _queuesCollection.doc(patientDocId).update({
+      final patientDoc = querySnapshot.docs.first;
+      final patientId = patientDoc['patientId'];
+
+      // Start a batch to perform multiple writes atomically.
+      final WriteBatch batch = _firestore.batch();
+
+      // 1. Update the queue entry status to 'completed'.
+      batch.update(patientDoc.reference, {
         'status': 'completed',
         'completedAt': FieldValue.serverTimestamp(),
       });
+
+      // 2. Find and update the corresponding appointment.
+      // Get the most recent 'scheduled' appointment for this patient with this doctor.
+      final appointmentQuery = await _appointmentsCollection
+          .where('patientId', isEqualTo: patientId)
+          .where('doctorId', isEqualTo: doctorId)
+          .where('status', isEqualTo: 'scheduled')
+          .orderBy('dateTime', descending: false)
+          .limit(1)
+          .get();
+
+      if (appointmentQuery.docs.isNotEmpty) {
+        final appointmentDocId = appointmentQuery.docs.first.id;
+        batch.update(_appointmentsCollection.doc(appointmentDocId), {'status': 'completed'});
+      }
+
+      // Commit the batch.
+      await batch.commit();
     }
   }
 

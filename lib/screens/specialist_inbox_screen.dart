@@ -72,11 +72,6 @@ class SpecialistInboxScreenState extends State<SpecialistInboxScreen> with Singl
         children: [
           Row(
             children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
-                onPressed: () => Navigator.pop(context),
-              ),
-              const SizedBox(width: 8),
               const Text('Referral Inbox', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white)),
               const Spacer(),
               StreamBuilder<List<Map<String, dynamic>>>(
@@ -157,6 +152,7 @@ class SpecialistInboxScreenState extends State<SpecialistInboxScreen> with Singl
 
   Widget _buildReferralCard(Map<String, dynamic> referral) {
     final ReferralModel referralData = referral['referral'];
+    final appointmentDate = referral['appointmentDate']?.toDate();
     Color priorityColor = referralData.priority == 'High'
         ? const Color(0xFFDC2626)
         : referralData.priority == 'Medium'
@@ -223,6 +219,14 @@ class SpecialistInboxScreenState extends State<SpecialistInboxScreen> with Singl
               const SizedBox(width: 8),
               Text('Received: ${DateFormat.yMMMd().format(referralData.createdAt)}', style: const TextStyle(fontSize: 13, color: Color(0xFF3B82F6))),
             ]),
+            if (appointmentDate != null) ...[
+              const SizedBox(height: 8),
+              Row(children: [
+                const Icon(Icons.check_circle, size: 16, color: Color(0xFF059669)),
+                const SizedBox(width: 8),
+                Text('Appointment: ${DateFormat.yMMMd().add_jm().format(appointmentDate)}', style: const TextStyle(fontSize: 13, color: Color(0xFF059669), fontWeight: FontWeight.w500)),
+              ]),
+            ],
             if (isPending) ...[
               const SizedBox(height: 16),
               Row(children: [

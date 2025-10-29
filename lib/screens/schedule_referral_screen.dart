@@ -72,10 +72,11 @@ class _ScheduleReferralScreenState extends State<ScheduleReferralScreen> {
           doctorId: referral.toSpecialistId,
           dateTime: finalDateTime,
           reason: 'Follow-up for referral: ${referral.reason}',
+          referralId: referral.id,
         );
 
         // Update the referral status
-        await _referralService.updateReferralStatus(referral.id, 'completed');
+        await _referralService.updateReferralStatus(referral.id, 'accepted');
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

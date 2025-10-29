@@ -169,6 +169,7 @@ class AppointmentsScreenState extends State<AppointmentsScreen> with SingleTicke
     final String doctorName = appointmentDetails['doctorName'] ?? 'N/A';
     final String specialty = appointmentDetails['doctorSpecialty'] ?? 'N/A';
     final String clinicName = appointmentDetails['clinicName'] ?? 'N/A';
+    final String doctorRole = appointmentDetails['doctorRole'] ?? 'doctor';
 
     Color statusColor;
     String statusText = appointment.status.toUpperCase();
@@ -273,7 +274,7 @@ class AppointmentsScreenState extends State<AppointmentsScreen> with SingleTicke
                 ),
               ],
             ),
-            if (type == 'upcoming') ...[
+            if (type == 'upcoming' && doctorRole == 'doctor') ...[
               const SizedBox(height: 16),
               Row(
                 children: [

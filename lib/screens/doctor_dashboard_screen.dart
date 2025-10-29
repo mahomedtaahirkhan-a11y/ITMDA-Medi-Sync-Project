@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:medisync/models/user_model.dart';
 import 'package:medisync/providers/auth_provider.dart';
 import 'package:medisync/services/queue_service.dart';
+import 'package:medisync/services/referral_service.dart';
 import 'package:provider/provider.dart';
 
 class DoctorDashboardScreen extends StatefulWidget {
@@ -14,6 +15,7 @@ class DoctorDashboardScreen extends StatefulWidget {
 
 class DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
   final QueueService _queueService = QueueService();
+  final ReferralService _referralService = ReferralService();
 
   Future<void> _callNextPatient(String doctorId) async {
     // Show a confirmation dialog before calling the next patient
@@ -156,32 +158,57 @@ class DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
   }
 
   Widget _buildStatsSection(String doctorId) {
-    return StreamBuilder<List<UserModel>>(
-      stream: _queueService.getDoctorQueue(doctorId),
-      builder: (context, snapshot) {
-        final waitingCount = snapshot.data?.length ?? 0;
-        return Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(
+    return Row(
+      children: [
+        Expanded(
+          child: StreamBuilder<List<UserModel>>(
+            stream: _queueService.getDoctorQueue(doctorId),
+            builder: (context, snapshot) {
+              final waitingCount = snapshot.data?.length ?? 0;
+              return _buildStatCard(
                 title: 'Waiting',
                 value: waitingCount.toString(),
                 icon: Icons.hourglass_empty,
                 color: const Color(0xFFCA8A04),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _buildStatCard(
+              );
+            },
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: StreamBuilder<int>(
+            stream: _referralService.getReferralsSentCount(doctorId),
+            builder: (context, snapshot) {
+               if (snapshot.hasError) {
+                print('Error fetching referral count: ${snapshot.error}');
+                return _buildStatCard(
+                  title: 'Referrals Sent',
+                  value: '!',
+                  icon: Icons.error_outline,
+                  color: Colors.red,
+                );
+              }
+
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return _buildStatCard(
+                  title: 'Referrals Sent',
+                  value: '-',
+                  icon: Icons.hourglass_empty,
+                  color: const Color(0xFF7C3AED),
+                );
+              }
+
+              final referralsCount = snapshot.data ?? 0;
+              return _buildStatCard(
                 title: 'Referrals Sent',
-                value: '0', // Placeholder for now
+                value: referralsCount.toString(),
                 icon: Icons.send,
                 color: const Color(0xFF7C3AED),
-              ),
-            ),
-          ],
-        );
-      },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 

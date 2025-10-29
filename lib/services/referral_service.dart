@@ -6,6 +6,7 @@ class ReferralService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final CollectionReference _referralsCollection = FirebaseFirestore.instance.collection('referrals');
   final CollectionReference _usersCollection = FirebaseFirestore.instance.collection('users');
+  final CollectionReference _appointmentsCollection = FirebaseFirestore.instance.collection('appointments');
 
   /// Creates a new referral in Firestore.
   Future<void> createReferral({
@@ -53,6 +54,15 @@ class ReferralService {
         .asyncMap(_processReferralList);
   }
 
+  /// Gets a stream of the number of referrals sent by a doctor.
+  Stream<int> getReferralsSentCount(String doctorId) {
+    return _referralsCollection
+        .where('fromDoctorId', isEqualTo: doctorId)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.length);
+  }
+
+
   /// Helper function to process a snapshot of referrals and fetch related details.
   Future<List<Map<String, dynamic>>> _processReferralList(QuerySnapshot snapshot) async {
     final referrals = snapshot.docs.map((doc) => ReferralModel.fromFirestore(doc)).toList();
@@ -83,11 +93,24 @@ class ReferralService {
     final patientDoc = await _usersCollection.doc(referral.patientId).get();
     final patientName = patientDoc.exists ? (patientDoc.data() as Map<String, dynamic>)['name'] : 'Unknown Patient';
 
-    return {
+    final details = {
       'referral': referral,
       'fromDoctorName': fromDoctorName,
       'toSpecialistName': toSpecialistName,
       'patientName': patientName,
     };
+
+    if (referral.status == 'accepted') {
+      final appointmentQuery = await _appointmentsCollection
+          .where('referralId', isEqualTo: referral.id)
+          .limit(1)
+          .get();
+
+      if (appointmentQuery.docs.isNotEmpty) {
+        details['appointmentDate'] = (appointmentQuery.docs.first.data() as Map<String, dynamic>)['dateTime'];
+      }
+    }
+
+    return details;
   }
 }

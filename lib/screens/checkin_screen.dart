@@ -18,11 +18,15 @@ class CheckInScreenState extends State<CheckInScreen> {
   final AppointmentService _appointmentService = AppointmentService();
   bool _isLoading = false;
 
-  Future<void> _checkIn(String patientId, String doctorId) async {
+  Future<void> _checkIn(String patientId, String doctorId, String appointmentId) async {
     setState(() => _isLoading = true);
 
     try {
+      // 1. Check the patient into the queue.
       await _queueService.checkIn(patientId, doctorId);
+
+      // 2. Update the appointment status to 'completed'.
+      await _appointmentService.updateAppointmentStatus(appointmentId, 'completed');
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -42,6 +46,7 @@ class CheckInScreenState extends State<CheckInScreen> {
       }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -155,12 +160,12 @@ class CheckInScreenState extends State<CheckInScreen> {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Text('at ${details['clinicName']}'),
+            Text('at ${details['clinicName'] ?? 'the clinic'}'),
             const SizedBox(height: 20),
             _isLoading
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
-                    onPressed: () => _checkIn(userId, appointment.doctorId),
+                    onPressed: () => _checkIn(userId, appointment.doctorId, appointment.id),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2563EB),
                       foregroundColor: Colors.white,

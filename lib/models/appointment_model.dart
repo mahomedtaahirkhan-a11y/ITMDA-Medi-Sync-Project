@@ -8,6 +8,7 @@ class AppointmentModel {
   final String status;
   final String? reason;
   final DateTime createdAt;
+  final String? referralId;
 
   AppointmentModel({
     required this.id,
@@ -17,6 +18,7 @@ class AppointmentModel {
     required this.status,
     this.reason,
     required this.createdAt,
+    this.referralId,
   });
 
   factory AppointmentModel.fromFirestore(DocumentSnapshot doc) {
@@ -40,6 +42,7 @@ class AppointmentModel {
       status: data['status'] ?? 'scheduled',
       reason: data['reason'],
       createdAt: parseTimestamp(data['createdAt']),
+      referralId: data['referralId'],
     );
   }
 
@@ -51,6 +54,7 @@ class AppointmentModel {
       'status': status,
       if (reason != null) 'reason': reason,
       'createdAt': FieldValue.serverTimestamp(),
+      if (referralId != null) 'referralId': referralId,
     };
   }
 }

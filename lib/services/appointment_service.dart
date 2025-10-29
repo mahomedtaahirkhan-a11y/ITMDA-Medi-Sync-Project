@@ -8,12 +8,13 @@ class AppointmentService {
   final CollectionReference _usersCollection = FirebaseFirestore.instance.collection('users');
   final CollectionReference _appointmentsCollection = FirebaseFirestore.instance.collection('appointments');
 
-  /// Creates a new appointment without a clinicId.
+  /// Creates a new appointment.
   Future<void> createAppointment({
     required String patientId,
     required String doctorId,
     required DateTime dateTime,
     required String reason,
+    String? referralId,
   }) async {
     await _appointmentsCollection.add({
       'patientId': patientId,
@@ -22,7 +23,13 @@ class AppointmentService {
       'reason': reason,
       'status': 'scheduled',
       'createdAt': FieldValue.serverTimestamp(),
+      if (referralId != null) 'referralId': referralId,
     });
+  }
+
+  /// Updates the status of an existing appointment.
+  Future<void> updateAppointmentStatus(String appointmentId, String newStatus) async {
+    await _appointmentsCollection.doc(appointmentId).update({'status': newStatus});
   }
 
   Stream<List<Map<String, dynamic>>> getPatientAppointments(
@@ -46,6 +53,17 @@ class AppointmentService {
       for (var apt in appointments) {
         try {
           final details = await getAppointmentDetails(apt);
+          
+          // If the appointment is a scheduled specialist appointment and it is in the past, update its status.
+          if (status == 'scheduled' && 
+              details['doctorRole'] == 'specialist' && 
+              apt.dateTime.isBefore(DateTime.now())) {
+            // No need to await, this is a fire-and-forget update.
+            // The stream will automatically emit the new state.
+            updateAppointmentStatus(apt.id, 'completed');
+            continue; // Skip adding it to the current list of scheduled appointments
+          }
+
           detailedAppointments.add(details);
         } catch (e) {
           print('Error fetching details for appointment ${apt.id}: $e');
@@ -67,6 +85,7 @@ class AppointmentService {
       'appointment': appointment,
       'doctorName': doctor.name,
       'doctorSpecialty': doctor.specialty ?? 'General Practice',
+      'doctorRole': doctor.role,
     };
   }
 }

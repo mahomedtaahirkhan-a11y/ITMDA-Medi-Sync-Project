@@ -8,7 +8,7 @@ class DoctorService {
   /// Fetches a stream of all doctors.
   Stream<List<UserModel>> getDoctors() {
     return _usersCollection
-        .where('role', whereIn: ['doctor', 'specialist']) // Fetch both doctors and specialists
+        .where('role', isEqualTo: 'doctor') // Fetch only doctors
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) => UserModel.fromFirestore(doc.data() as Map<String, dynamic>, doc.id)).toList();

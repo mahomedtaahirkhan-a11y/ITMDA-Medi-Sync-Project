@@ -28,57 +28,57 @@ class SignupScreenState extends State<SignupScreen> {
   }
 
   Future<void> _signup() async {
-  if (!_formKey.currentState!.validate()) {
-    print('❌ Form validation failed');
-    return;
-  }
+    if (!_formKey.currentState!.validate()) {
+      print('❌ Form validation failed');
+      return;
+    }
 
-  print('🔄 Starting signup process...');
-  setState(() => _isLoading = true);
+    print('🔄 Starting signup process...');
+    setState(() => _isLoading = true);
 
-  try {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    
-    final success = await authProvider.register(
-      email: _emailController.text.trim(),
-      password: _passwordController.text,
-      name: _nameController.text.trim(),
-      role: _role,
-      phoneNumber: _phoneController.text.trim(),
-    );
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    setState(() => _isLoading = false);
-
-    if (success) {
-      print('✅ Registration successful!');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Account created successfully!'),
-          backgroundColor: Colors.green,
-        ),
+      final success = await authProvider.register(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+        name: _nameController.text.trim(),
+        role: _role,
+        phoneNumber: _phoneController.text.trim(),
       );
-      // Navigate to login
-      Navigator.pushReplacementNamed(context, '/login');
-    } else {
-      print('❌ Registration failed in provider');
+
+      setState(() => _isLoading = false);
+
+      if (success) {
+        print('✅ Registration successful!');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Account created successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        // Navigate to login
+        Navigator.pushReplacementNamed(context, '/login');
+      } else {
+        print('❌ Registration failed in provider');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Registration failed. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      print('❌ Unexpected error in _signup: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Registration failed. Please try again.'),
+        SnackBar(
+          content: Text('Unexpected error: $e'),
           backgroundColor: Colors.red,
         ),
       );
     }
-  } catch (e) {
-    setState(() => _isLoading = false);
-    print('❌ Unexpected error in _signup: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Unexpected error: $e'),
-        backgroundColor: Colors.red,
-      ),
-    );
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -319,20 +319,20 @@ class SignupScreenState extends State<SignupScreen> {
                             ),
                             child: _isLoading
                                 ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2,
-                                    ),
-                                  )
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
                                 : const Text(
-                                    'Sign Up',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
+                              'Sign Up',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ),
                           const SizedBox(height: 24),
                           Center(
